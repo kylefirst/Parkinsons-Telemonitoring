@@ -1,0 +1,6 @@
+# App Icon Styles
+
+--Red voice icon: #ff5666
+--Background Color: #444554
+
+Link: https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html
