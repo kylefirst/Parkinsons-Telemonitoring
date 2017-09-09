@@ -1,5 +1,6 @@
 package com.example.kk.mobilevoicediagnostic;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -271,6 +272,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -286,7 +289,8 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_voice) {
 
         } else if (id == R.id.nav_settings) {
-
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
