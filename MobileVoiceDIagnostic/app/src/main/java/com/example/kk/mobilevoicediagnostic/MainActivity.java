@@ -25,7 +25,7 @@ import android.support.v4.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
 
     Button buttonStart, buttonStop, buttonPlayLastRecordAudio,
-            buttonStopPlayingRecording ;
+            buttonStopPlayingRecording, buttonReset;
     String AudioSavePathInDevice = null;
     MediaRecorder mediaRecorder ;
     Random random ;
@@ -42,10 +42,12 @@ public class MainActivity extends AppCompatActivity {
         buttonStop = (Button) findViewById(R.id.button2);
         buttonPlayLastRecordAudio = (Button) findViewById(R.id.button3);
         buttonStopPlayingRecording = (Button)findViewById(R.id.button4);
+        buttonReset = (Button)findViewById(R.id.button5);
 
         buttonStop.setEnabled(false);
         buttonPlayLastRecordAudio.setEnabled(false);
         buttonStopPlayingRecording.setEnabled(false);
+        buttonReset.setEnabled(false);
 
         random = new Random();
 
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 buttonPlayLastRecordAudio.setEnabled(true);
                 buttonStart.setEnabled(true);
                 buttonStopPlayingRecording.setEnabled(false);
+                buttonReset.setEnabled(true);
 
                 Toast.makeText(MainActivity.this, "Recording Completed",
                         Toast.LENGTH_LONG).show();
@@ -134,6 +137,16 @@ public class MainActivity extends AppCompatActivity {
                     mediaPlayer.release();
                     MediaRecorderReady();
                 }
+            }
+        });
+
+        buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonPlayLastRecordAudio.setEnabled(false);
+                buttonReset.setEnabled(false);
+
+                mediaRecorder.reset();
             }
         });
 
