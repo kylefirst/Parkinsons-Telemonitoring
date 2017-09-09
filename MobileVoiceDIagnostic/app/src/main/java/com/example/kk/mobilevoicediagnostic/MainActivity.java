@@ -24,8 +24,8 @@ import android.support.v4.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button buttonStart, buttonStop, buttonPlayLastRecordAudio,
-            buttonStopPlayingRecording ;
+    Button buttonStartStop, buttonPlayStopLastRecordAudio,
+            buttonReset;
     String AudioSavePathInDevice = null;
     MediaRecorder mediaRecorder ;
     Random random ;
@@ -38,45 +38,55 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buttonStart = (Button) findViewById(R.id.button);
-        buttonStop = (Button) findViewById(R.id.button2);
-        buttonPlayLastRecordAudio = (Button) findViewById(R.id.button3);
-        buttonStopPlayingRecording = (Button)findViewById(R.id.button4);
+        buttonStartStop = (Button) findViewById(R.id.button);
+        buttonPlayStopLastRecordAudio = (Button) findViewById(R.id.button2);
+        buttonReset = (Button)findViewById(R.id.button3);
 
-        buttonStop.setEnabled(false);
-        buttonPlayLastRecordAudio.setEnabled(false);
-        buttonStopPlayingRecording.setEnabled(false);
+        buttonPlayStopLastRecordAudio.setEnabled(false);
+        buttonReset.setEnabled(false);
 
         random = new Random();
 
-        buttonStart.setOnClickListener(new View.OnClickListener() {
+        buttonStartStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if(checkPermission()) {
+                    if(buttonStartStop.getText().equals("RECORD")) {
+                        AudioSavePathInDevice =
+                                Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
+                                        CreateRandomAudioFileName(5) + "AudioRecording.wav";
 
-                    AudioSavePathInDevice =
-                            Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
-                                    CreateRandomAudioFileName(5) + "AudioRecording.3gp";
+                        MediaRecorderReady();
 
-                    MediaRecorderReady();
+                        try {
+                            mediaRecorder.prepare();
+                            mediaRecorder.start();
+                        } catch (IllegalStateException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
 
-                    try {
-                        mediaRecorder.prepare();
-                        mediaRecorder.start();
-                    } catch (IllegalStateException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        buttonStartStop.setText("STOP");
+                        buttonPlayStopLastRecordAudio.setEnabled(false);
+
+                        Toast.makeText(MainActivity.this, "Recording started",
+                                Toast.LENGTH_LONG).show();
                     }
+                    else if(buttonStartStop.getText().equals("STOP")) {
+                        mediaRecorder.stop();
+                        buttonStartStop.setText("RECORD");
+                        buttonPlayStopLastRecordAudio.setEnabled(true);
+                        buttonStartStop.setEnabled(true);
+                        buttonReset.setEnabled(true);
+                        buttonPlayStopLastRecordAudio.setEnabled(true);
 
-                    buttonStart.setEnabled(false);
-                    buttonStop.setEnabled(true);
-
-                    Toast.makeText(MainActivity.this, "Recording started",
-                            Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Recording Completed",
+                                Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     requestPermission();
                 }
@@ -84,56 +94,47 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mediaRecorder.stop();
-                buttonStop.setEnabled(false);
-                buttonPlayLastRecordAudio.setEnabled(true);
-                buttonStart.setEnabled(true);
-                buttonStopPlayingRecording.setEnabled(false);
-
-                Toast.makeText(MainActivity.this, "Recording Completed",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
-        buttonPlayLastRecordAudio.setOnClickListener(new View.OnClickListener() {
+        buttonPlayStopLastRecordAudio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) throws IllegalArgumentException,
                     SecurityException, IllegalStateException {
 
-                buttonStop.setEnabled(false);
-                buttonStart.setEnabled(false);
-                buttonStopPlayingRecording.setEnabled(true);
+                if(buttonPlayStopLastRecordAudio.getText().equals("PLAY")) {
+                    buttonStartStop.setEnabled(false);
 
-                mediaPlayer = new MediaPlayer();
-                try {
-                    mediaPlayer.setDataSource(AudioSavePathInDevice);
-                    mediaPlayer.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    mediaPlayer = new MediaPlayer();
+                    try {
+                        mediaPlayer.setDataSource(AudioSavePathInDevice);
+                        mediaPlayer.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    mediaPlayer.start();
+                    buttonPlayStopLastRecordAudio.setText("STOP PLAYING RECORDING");
+                    Toast.makeText(MainActivity.this, "Recording Playing",
+                            Toast.LENGTH_LONG).show();
                 }
+                else if(buttonPlayStopLastRecordAudio.getText().equals("STOP PLAYING RECORDING")) {
+                    buttonStartStop.setEnabled(true);
+                    buttonPlayStopLastRecordAudio.setText("PLAY");
 
-                mediaPlayer.start();
-                Toast.makeText(MainActivity.this, "Recording Playing",
-                        Toast.LENGTH_LONG).show();
+                    if(mediaPlayer != null){
+                        mediaPlayer.stop();
+                        mediaPlayer.release();
+                        MediaRecorderReady();
+                    }
+                }
             }
         });
 
-        buttonStopPlayingRecording.setOnClickListener(new View.OnClickListener() {
+        buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                buttonStop.setEnabled(false);
-                buttonStart.setEnabled(true);
-                buttonStopPlayingRecording.setEnabled(false);
-                buttonPlayLastRecordAudio.setEnabled(true);
+                buttonPlayStopLastRecordAudio.setEnabled(false);
+                buttonReset.setEnabled(false);
 
-                if(mediaPlayer != null){
-                    mediaPlayer.stop();
-                    mediaPlayer.release();
-                    MediaRecorderReady();
-                }
+                mediaRecorder.reset();
             }
         });
 
