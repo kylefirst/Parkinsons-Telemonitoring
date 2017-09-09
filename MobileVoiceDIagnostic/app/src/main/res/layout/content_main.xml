@@ -10,22 +10,37 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:paddingBottom="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="10dp">
+        android:paddingTop="10dp"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        tools:layout_constraintLeft_creator="1"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="RECORD"
+        <ImageButton
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/record"
+            android:scaleType="fitCenter"
             android:id="@+id/button"
+            android:background="@drawable/round_button"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="37dp"
+            android:layout_marginTop="300dp"
             />
 
         <Button
@@ -33,9 +48,9 @@
             android:layout_height="wrap_content"
             android:text="PLAY"
             android:id="@+id/button2"
-            android:layout_alignTop="@+id/button"
+            android:layout_below="@id/button"
+            android:layout_marginTop="40dp"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
             />
 
         <Button
@@ -43,9 +58,10 @@
             android:layout_height="wrap_content"
             android:text="RESET"
             android:id="@+id/button3"
-            android:layout_below="@+id/button2"
+            android:layout_below="@+id/button"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="40dp"
+            android:layout_alignBottom="@id/button2"
             />
 
         <Button
@@ -53,9 +69,9 @@
             android:layout_height="wrap_content"
             android:text="UPLOAD"
             android:id="@+id/button4"
-            android:layout_below="@+id/button3"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
+            android:layout_alignParentLeft="@id/button3"
+            android:layout_alignBaseline="@id/button2"
+            android:layout_marginTop="40dp"
             />
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
