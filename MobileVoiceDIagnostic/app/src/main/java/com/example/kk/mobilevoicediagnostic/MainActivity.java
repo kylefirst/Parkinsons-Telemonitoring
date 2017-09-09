@@ -183,8 +183,11 @@ public class MainActivity extends AppCompatActivity
                 buttonStartStop.setEnabled(true);
                 buttonReset.setEnabled(false);
                 buttonUpload.setEnabled(false);
-
                 mediaRecorder.reset();
+
+                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                        "RawAccelerometerData.txt");
+                file.delete();
             }
         });
 
