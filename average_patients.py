@@ -39,7 +39,7 @@ for i in range(len(write_array)):
 	write_array[i] = write_array[i][:3] + write_array[i][5+1 :]
 	for j in range(len(write_array[i])):
 		write_array[i][j] = write_array[i][j]/(num_repeats[i]+0.0)
-	if write_array[i][-1]>20:
+	if write_array[i][-1]>23:
 		write_array[i][-1]="+"
 	else:
 		write_array[i][-1]="-"
