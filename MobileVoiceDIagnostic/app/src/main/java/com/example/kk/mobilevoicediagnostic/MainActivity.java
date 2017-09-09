@@ -1,7 +1,12 @@
 package com.example.kk.mobilevoicediagnostic;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -29,13 +34,16 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.os.SystemClock.currentThreadTimeMillis;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
 
     Button buttonStartStop, buttonPlayStopLastRecordAudio,
             buttonReset, buttonUpload;
@@ -43,6 +51,8 @@ public class MainActivity extends AppCompatActivity
     MediaRecorder mediaRecorder ;
     public static final int RequestPermissionCode = 1;
     private StorageReference mStorageRef;
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
     MediaPlayer mediaPlayer ;
 
     @Override
@@ -62,6 +72,8 @@ public class MainActivity extends AppCompatActivity
         buttonUpload.setEnabled(false);
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -97,6 +109,7 @@ public class MainActivity extends AppCompatActivity
 
                         buttonStartStop.setText("STOP");
                         buttonPlayStopLastRecordAudio.setEnabled(false);
+                        onStartClick(view);
 
                         Toast.makeText(MainActivity.this, "Recording started",
                                 Toast.LENGTH_LONG).show();
@@ -109,6 +122,7 @@ public class MainActivity extends AppCompatActivity
                         buttonReset.setEnabled(true);
                         buttonUpload.setEnabled(true);
                         buttonPlayStopLastRecordAudio.setEnabled(true);
+                        onStopClick(view);
 
                         Toast.makeText(MainActivity.this, "Recording Completed",
                                 Toast.LENGTH_LONG).show();
@@ -138,6 +152,7 @@ public class MainActivity extends AppCompatActivity
 
                     mediaPlayer.start();
                     buttonPlayStopLastRecordAudio.setText("STOP PLAYING RECORDING");
+
                     Toast.makeText(MainActivity.this, "Recording Playing",
                             Toast.LENGTH_LONG).show();
                 }
@@ -171,21 +186,40 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 buttonUpload.setEnabled(false);
 
-                System.out.println("Environment.getExternalStorageDirectory().getAbsolutePath()\n" +
-                        "                        + \"/\" + \"AudioRecording.wav\"");
-
-                Uri file = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                Uri audioFile = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath()
                         + "/" + "AudioRecording.wav"));
+                Uri sensorFile = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                        "RawAccelerometerData.txt"));
                 StorageReference audioFileRef = mStorageRef.child("AudioRecording.wav");
+                StorageReference sensorFileRef = mStorageRef.child("RawAccelerometerData.txt");
 
-                audioFileRef.putFile(file)
+                audioFileRef.putFile(audioFile)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 // Get a URL to the uploaded content
                                 //Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
-                                Toast.makeText(MainActivity.this, "Upload Success!",
+                                Toast.makeText(MainActivity.this, "Audio Success!",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                // ...
+                            }
+                        });
+
+                sensorFileRef.putFile(sensorFile)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // Get a URL to the uploaded content
+                                //Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                                Toast.makeText(MainActivity.this, "Sensor Success!",
                                         Toast.LENGTH_LONG).show();
                             }
                         })
@@ -296,5 +330,47 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void onStartClick(View view) {
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void onStopClick(View view) {
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        long time = currentThreadTimeMillis();
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+
+        String string = time+","+x+","+y+","+z+"\n";
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                "RawAccelerometerData.txt");
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file, true);
+            outputStream.write(string.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
     }
 }
