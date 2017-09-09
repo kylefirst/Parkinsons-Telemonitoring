@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -45,8 +46,9 @@ import static android.os.SystemClock.currentThreadTimeMillis;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
 
-    Button buttonStartStop, buttonPlayStopLastRecordAudio,
+    Button buttonPlayStopLastRecordAudio,
             buttonReset, buttonUpload;
+    ImageButton buttonStartStop;
     String AudioSavePathInDevice = null;
     MediaRecorder mediaRecorder ;
     public static final int RequestPermissionCode = 1;
@@ -62,7 +64,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        buttonStartStop = (Button) findViewById(R.id.button);
+        buttonStartStop = (ImageButton) findViewById(R.id.button);
+        buttonStartStop.setImageResource(R.drawable.record);
+        buttonStartStop.setTag("start");
+
         buttonPlayStopLastRecordAudio = (Button) findViewById(R.id.button2);
         buttonReset = (Button)findViewById(R.id.button3);
         buttonUpload = (Button)findViewById(R.id.button4);
@@ -89,7 +94,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
 
                 if(checkPermission()) {
-                    if(buttonStartStop.getText().equals("RECORD")) {
+                    if(buttonStartStop.getTag().toString().equalsIgnoreCase("start")) {
                         AudioSavePathInDevice =
                                 Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
                                         + "AudioRecording.wav";
@@ -107,16 +112,18 @@ public class MainActivity extends AppCompatActivity
                             e.printStackTrace();
                         }
 
-                        buttonStartStop.setText("STOP");
+                        buttonStartStop.setImageResource(R.drawable.recordstop);
+                        buttonStartStop.setTag("stop");
                         buttonPlayStopLastRecordAudio.setEnabled(false);
                         onStartClick(view);
 
                         Toast.makeText(MainActivity.this, "Recording started",
                                 Toast.LENGTH_LONG).show();
                     }
-                    else if(buttonStartStop.getText().equals("STOP")) {
+                    else if(buttonStartStop.getTag().toString().equalsIgnoreCase("stop")) {
                         mediaRecorder.stop();
-                        buttonStartStop.setText("RECORD");
+                        buttonStartStop.setImageResource(R.drawable.record);
+                        buttonStartStop.setTag("start");
                         buttonPlayStopLastRecordAudio.setEnabled(true);
                         buttonStartStop.setEnabled(true);
                         buttonReset.setEnabled(true);
