@@ -3,7 +3,9 @@ package com.example.kk.mobilevoicediagnostic;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 
+import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
@@ -22,15 +25,20 @@ import android.support.v4.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 public class MainActivity extends AppCompatActivity {
 
     Button buttonStartStop, buttonPlayStopLastRecordAudio,
-            buttonReset;
+            buttonReset, buttonUpload;
     String AudioSavePathInDevice = null;
     MediaRecorder mediaRecorder ;
-    Random random ;
-    String RandomAudioFileName = "ABCDEFGHIJKLMNOP";
     public static final int RequestPermissionCode = 1;
+    private StorageReference mStorageRef;
     MediaPlayer mediaPlayer ;
 
     @Override
@@ -41,11 +49,13 @@ public class MainActivity extends AppCompatActivity {
         buttonStartStop = (Button) findViewById(R.id.button);
         buttonPlayStopLastRecordAudio = (Button) findViewById(R.id.button2);
         buttonReset = (Button)findViewById(R.id.button3);
+        buttonUpload = (Button)findViewById(R.id.button4);
 
         buttonPlayStopLastRecordAudio.setEnabled(false);
         buttonReset.setEnabled(false);
+        buttonUpload.setEnabled(false);
 
-        random = new Random();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         buttonStartStop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 if(checkPermission()) {
                     if(buttonStartStop.getText().equals("RECORD")) {
                         AudioSavePathInDevice =
-                                Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
-                                        CreateRandomAudioFileName(5) + "AudioRecording.wav";
+                                Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
+                                        + "AudioRecording.wav";
 
                         MediaRecorderReady();
 
@@ -82,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         buttonPlayStopLastRecordAudio.setEnabled(true);
                         buttonStartStop.setEnabled(true);
                         buttonReset.setEnabled(true);
+                        buttonUpload.setEnabled(true);
                         buttonPlayStopLastRecordAudio.setEnabled(true);
 
                         Toast.makeText(MainActivity.this, "Recording Completed",
@@ -132,9 +143,44 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 buttonPlayStopLastRecordAudio.setEnabled(false);
+                buttonStartStop.setEnabled(true);
                 buttonReset.setEnabled(false);
+                buttonUpload.setEnabled(false);
 
                 mediaRecorder.reset();
+            }
+        });
+
+        buttonUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonUpload.setEnabled(false);
+
+                System.out.println("Environment.getExternalStorageDirectory().getAbsolutePath()\n" +
+                        "                        + \"/\" + \"AudioRecording.wav\"");
+
+                Uri file = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + "/" + "AudioRecording.wav"));
+                StorageReference audioFileRef = mStorageRef.child("AudioRecording.wav");
+
+                audioFileRef.putFile(file)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // Get a URL to the uploaded content
+                                //Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                                Toast.makeText(MainActivity.this, "Upload Success!",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                // ...
+                            }
+                        });
             }
         });
 
@@ -146,18 +192,6 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
         mediaRecorder.setOutputFile(AudioSavePathInDevice);
-    }
-
-    public String CreateRandomAudioFileName(int string){
-        StringBuilder stringBuilder = new StringBuilder( string );
-        int i = 0 ;
-        while(i < string ) {
-            stringBuilder.append(RandomAudioFileName.
-                    charAt(random.nextInt(RandomAudioFileName.length())));
-
-            i++ ;
-        }
-        return stringBuilder.toString();
     }
 
     private void requestPermission() {
