@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                     if(buttonStartStop.getText().equals("RECORD")) {
                         AudioSavePathInDevice =
                                 Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
-                                        CreateRandomAudioFileName(5) + "AudioRecording.3gp";
+                                        CreateRandomAudioFileName(5) + "AudioRecording.wav";
 
                         MediaRecorderReady();
 
