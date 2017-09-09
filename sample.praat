@@ -8,16 +8,17 @@
 ## Preparations
 # Set the folder where the Praat files are, where you want the output to
 # go, and the types of files you will be analyzing.
-basepath$ = "patient_data_wav"
-outDirectory$ = "praat_out"
-outFile$ = "please"
+basepath$ = "patient_data_wav/"
+outDirectory$ = "praat_out/"
+outFile$ = "Output2006Spring5May2013"
 filetype$ = ".wav"
 # Initialize array of directory names
-num_Dirs = 0
+num_Dirs = 1
 depth = 0
 
 # Call the openDir procedure starting with the base folder.
 call openDir 'basepath$'
+
 
 #########################################################################
 #########################################################################
