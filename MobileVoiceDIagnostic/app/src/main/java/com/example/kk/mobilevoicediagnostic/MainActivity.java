@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -26,6 +27,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -50,12 +52,13 @@ public class MainActivity extends AppCompatActivity
             buttonReset, buttonUpload;
     ImageButton buttonStartStop;
     String AudioSavePathInDevice = null;
-    MediaRecorder mediaRecorder ;
+    MediaRecorder mediaRecorder;
     public static final int RequestPermissionCode = 1;
     private StorageReference mStorageRef;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
-    MediaPlayer mediaPlayer ;
+    MediaPlayer mediaPlayer;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,9 @@ public class MainActivity extends AppCompatActivity
         buttonReset.setEnabled(false);
         buttonUpload.setEnabled(false);
 
+        textView = (TextView)findViewById(R.id.countdown);
+        textView.setVisibility(View.GONE);
+
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -91,7 +97,7 @@ public class MainActivity extends AppCompatActivity
 
         buttonStartStop.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
 
                 if(checkPermission()) {
                     if(buttonStartStop.getTag().toString().equalsIgnoreCase("start")) {
@@ -119,6 +125,32 @@ public class MainActivity extends AppCompatActivity
 
                         Toast.makeText(MainActivity.this, "Recording started",
                                 Toast.LENGTH_LONG).show();
+
+                        textView.setVisibility(View.VISIBLE);
+
+                        new CountDownTimer(10000, 1000) {
+
+                            public void onTick(long millisUntilFinished) {
+                                textView.setText(Integer.toString((int)millisUntilFinished/1000));
+                            }
+
+                            public void onFinish() {
+                                textView.setVisibility(View.GONE);
+
+                                mediaRecorder.stop();
+                                buttonStartStop.setImageResource(R.drawable.record);
+                                buttonStartStop.setTag("start");
+                                buttonPlayStopLastRecordAudio.setEnabled(true);
+                                buttonStartStop.setEnabled(true);
+                                buttonReset.setEnabled(true);
+                                buttonUpload.setEnabled(true);
+                                buttonPlayStopLastRecordAudio.setEnabled(true);
+                                onStopClick(view);
+
+                                Toast.makeText(MainActivity.this, "Recording Completed",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }.start();
                     }
                     else if(buttonStartStop.getTag().toString().equalsIgnoreCase("stop")) {
                         mediaRecorder.stop();
@@ -158,12 +190,12 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     mediaPlayer.start();
-                    buttonPlayStopLastRecordAudio.setText("STOP PLAYING RECORDING");
+                    buttonPlayStopLastRecordAudio.setText("PAUSE");
 
                     Toast.makeText(MainActivity.this, "Recording Playing",
                             Toast.LENGTH_LONG).show();
                 }
-                else if(buttonPlayStopLastRecordAudio.getText().equals("STOP PLAYING RECORDING")) {
+                else if(buttonPlayStopLastRecordAudio.getText().equals("PAUSE")) {
                     buttonStartStop.setEnabled(true);
                     buttonPlayStopLastRecordAudio.setText("PLAY");
 

@@ -6,6 +6,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="count">10</string>
 
     <!-- Strings related to Settings -->
 
