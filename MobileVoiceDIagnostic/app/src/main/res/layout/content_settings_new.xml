@@ -6,6 +6,67 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.kk.mobilevoicediagnostic.SettingsNewActivity"
-    tools:showIn="@layout/activity_settings_new">
+    tools:showIn="@layout/activity_settings_new"
+    android:background="#444554">
+
+    <RelativeLayout android:id="@+id/RelativeLayout01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/phoneField"
+            android:textColor="#ff5666"
+            android:textColorHint="#ff5666"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="phone number"
+            android:inputType="phone"
+            android:digits="0123456789+"
+            android:maxLines="1"
+            android:layout_alignBottom="@+id/phoneSubmitButton"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toLeftOf="@+id/phoneSubmitButton"
+            android:layout_toStartOf="@+id/phoneSubmitButton"
+            android:layout_marginLeft="25dp"/>
+        <Button
+            android:id="@+id/phoneSubmitButton"
+            android:layout_marginTop="25dp"
+            android:text="Submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="25dp"
+            android:layout_marginEnd="25dp" />
+
+        <EditText
+            android:id="@+id/medField"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="medication type"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="#ff5666"
+            android:textColorHint="#ff5666"
+            android:layout_alignBottom="@+id/medSubmitButton"
+            android:layout_toLeftOf="@+id/medSubmitButton"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="25dp"/>
+
+        <Button
+            android:id="@+id/medSubmitButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="75dp"
+            android:text="Submit" />
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>
