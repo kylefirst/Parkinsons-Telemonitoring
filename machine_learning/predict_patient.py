@@ -7,13 +7,14 @@ import tensorflow as tf
 #%matplotlib inline
 plt.style.use('ggplot')
 
-fname = "../output.txt"
-test_name = "../new_patient.txt"
+fname = "../output.csv"
+test_name = "../newpatient.csv"
 
 def read_data(file_path):
 	column_names = ['user-id','disease_classification','timestamp', 'x-axis', 'y-axis', 'z-axis']
 	data = pd.read_csv(file_path,header = None, names = column_names)
 	return data
+
 
 def feature_normalize(dataset):
 	mu = np.mean(dataset,axis = 0)
@@ -38,10 +39,10 @@ def plot_activity(activity,data):
 	plt.subplots_adjust(top=0.90)	
 	plt.show()
 
-dataset = read_data(fname)
-dataset['x-axis'] = feature_normalize(dataset['x-axis'])
-dataset['y-axis'] = feature_normalize(dataset['y-axis'])
-dataset['z-axis'] = feature_normalize(dataset['z-axis'])
+test_line = read_data(test_name)
+test_line['x-axis'] = feature_normalize(test_line['x-axis'])
+test_line['y-axis'] = feature_normalize(test_line['y-axis'])
+test_line['z-axis'] = feature_normalize(test_line['z-axis'])
 
 
 # reading data
@@ -72,21 +73,49 @@ def segment_signal(data,window_size = 90):
 		y = data["y-axis"][start:end]
 		z = data["z-axis"][start:end]
 		if(len(dataset["timestamp"][start:end]) == window_size):
+			print "seg: ", segments.shape
+			print "stac: ", np.dstack([x,y,z]).shape
 			segments = np.vstack([segments,np.dstack([x,y,z])])
 			labels = np.append(labels,stats.mode(data["disease_classification"][start:end])[0][0])
 	return segments, labels
 
-segments, labels = segment_signal(dataset)
-labels = np.asarray(pd.get_dummies(labels), dtype = np.int8)
-reshaped_segments = segments.reshape(len(segments), 1,90, 3)
+def segment_test_signal(data,window_size = 90):
+	test_segments = np.empty((0,window_size,3))
+	#labels = np.empty((0))
+	for (start, end) in windows(data["timestamp"], window_size):
+		x = data["x-axis"][start:end]
+		y = data["y-axis"][start:end]
+		z = data["z-axis"][start:end]
+		print np.dstack([x,y,z]).shape[1]
+		if(len(dataset["timestamp"][start:end]) == window_size and np.dstack([x,y,z]).shape[1]== window_size):
+			print "test seg: ", test_segments.shape
+			print "test stac: ", np.dstack([x,y,z]).shape
+			test_segments = np.vstack([test_segments,np.dstack([x,y,z])])
+			#test_segments = np.vstack([test_segments,np.dstack([x,y,z])])
+	return test_segments, labels
 
+
+segments, labels = segment_signal(dataset)
+#print pd.get_dummies(labels)
+labels = np.asarray(pd.get_dummies(labels), dtype = np.int8)
+
+#print segments.shape
+reshaped_segments = segments.reshape(len(segments), 1,90, 3)
+#print reshaped_segments.shape
+
+#print "__________________-"
+#print len(reshaped_segments[0])
+test_segments,test_labels = segment_test_signal(test_line)
+#print test_segments.shape
+test_reshaped_segments = test_segments.reshape(len(test_segments),1,90, 3)
 
 # randomly split into training and testing
-train_test_split = np.random.rand(len(reshaped_segments)) < 0.70
-train_x = reshaped_segments[train_test_split]
-train_y = labels[train_test_split]
-test_x = reshaped_segments[~train_test_split]
-test_y = labels[~train_test_split]
+#train_test_split = np.random.rand(len(reshaped_segments)) < 0.70
+#print train_test_split," that was the train_test_split"
+train_x = reshaped_segments
+train_y = labels
+test_x = test_segments
+test_y = test_labels
 
 
 #CNN Model
@@ -127,7 +156,10 @@ def apply_max_pool(x,kernel_size,stride_size):
 
 X = tf.placeholder(tf.float32, shape=[None,input_height,input_width,num_channels])
 Y = tf.placeholder(tf.float32, shape=[None,num_labels])
-
+# print "X: ",X
+# print "Y :",Y
+# print "test_x: ",test_x
+# print "test_y: ",test_y
 c = apply_depthwise_conv(X,kernel_size,num_channels,depth)
 p = apply_max_pool(c,20,2)
 c = apply_depthwise_conv(p,6,depth*num_channels,depth//10)
@@ -142,6 +174,8 @@ f = tf.nn.tanh(tf.add(tf.matmul(c_flat, f_weights_l1),f_biases_l1))
 out_weights = weight_variable([num_hidden, num_labels])
 out_biases = bias_variable([num_labels])
 y_ = tf.nn.softmax(tf.matmul(f, out_weights) + out_biases)
+#y_ = tf.expand_dims(y_,axis=0)
+#print y_
 
 loss = -tf.reduce_sum(Y * tf.log(y_))
 optimizer = tf.train.GradientDescentOptimizer(learning_rate = learning_rate).minimize(loss)
@@ -155,12 +189,27 @@ with tf.Session() as session:
 		print "epoch"
 		cost_history = np.empty(shape=[1],dtype=float)
 		for b in range(total_batchs):    
-			print "what the fuck"
+			#print "what the fuck"
 			offset = (b * batch_size) % (train_y.shape[0] - batch_size)
 			batch_x = train_x[offset:(offset + batch_size), :, :, :]
 			batch_y = train_y[offset:(offset + batch_size), :]
 			_, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
 			cost_history = np.append(cost_history,c)
-			print "Epoch: ",epoch," Training Loss: ",np.mean(cost_history)," Training Accuracy: ",session.run(accuracy, feed_dict={X: train_x, Y: train_y})
-	
-	print "Testing Accuracy:", session.run(accuracy, feed_dict={X: test_x, Y: test_y})
+			#print "Epoch: ",epoch," Training Loss: ",np.mean(cost_history)," Training Accuracy: ",session.run(accuracy, feed_dict={X: train_x, Y: train_y})
+	print test_x.shape
+	test_x=np.expand_dims(test_x,axis=1)
+	print test_y.shape
+	#test_y=np.array([0,1,2,3])
+	#test_y=np.expand_dims(test_y,axis=0)
+	print X.get_shape().as_list()
+	print Y.get_shape().as_list()
+	K= session.run(y_, feed_dict={X: test_x, Y: test_y})
+m = max(K[0])
+ind=0
+for i in range(len(K[0])):
+	if K[0][i]==m:
+		ind=i
+print ind
+output = open("../prediction.txt",'w')
+output.write(str(ind)+"\n")
+output.close()
