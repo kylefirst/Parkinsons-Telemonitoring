@@ -217,7 +217,20 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonPlayStopLastRecordAudio.setEnabled(false);
+                buttonStartStop.setEnabled(true);
+                buttonReset.setEnabled(false);
+                buttonUpload.setEnabled(false);
+                mediaRecorder.reset();
 
+                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                        "RawAccelerometerData.txt");
+                file.delete();
+            }
+        });
 
         buttonUpload.setOnClickListener(new View.OnClickListener() {
             @Override
