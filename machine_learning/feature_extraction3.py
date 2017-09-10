@@ -91,8 +91,8 @@ test_y = labels[~train_test_split]
 #CNN Model
 input_height = 1
 input_width = 90
-num_labels = 6
-num_channels = 3
+num_labels = 4	
+num_channels = 4
 
 batch_size = 10
 kernel_size = 60
@@ -151,8 +151,10 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 with tf.Session() as session:
 	tf.global_variables_initializer().run()
 	for epoch in range(training_epochs):
+		print "epoch"
 		cost_history = np.empty(shape=[1],dtype=float)
 		for b in range(total_batchs):    
+			print "what the fuck"
 			offset = (b * batch_size) % (train_y.shape[0] - batch_size)
 			batch_x = train_x[offset:(offset + batch_size), :, :, :]
 			batch_y = train_y[offset:(offset + batch_size), :]
