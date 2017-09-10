@@ -7,11 +7,8 @@ import tensorflow as tf
 #%matplotlib inline
 plt.style.use('ggplot')
 
-<<<<<<< HEAD
-fname = "RawAccelerometerData.txt"
-=======
-fname = "../RawAccelerometerData.txt"
->>>>>>> cfedcde18df04bdc500ee3e86d688793c7cbefb3
+fname = "../output_binary_full.txt"
+#fname = "../output.txt"
 
 def read_data(file_path):
 	column_names = ['user-id','disease_classification','timestamp', 'x-axis', 'y-axis', 'z-axis']
@@ -68,18 +65,6 @@ def windows(data, size):
 		start += (size / 2)
 
 def segment_signal(data,window_size = 90):
-<<<<<<< HEAD
-    segments = np.empty((0,window_size,3))
-    labels = np.empty((0))
-    for (start, end) in windows(data["timestamp"], window_size):
-        x = data["x-axis"][start:end]
-        y = data["y-axis"][start:end]
-        z = data["z-axis"][start:end]
-        if(len(dataset["timestamp"][start:end]) == window_size):
-            segments = np.vstack([segments,np.dstack([x,y,z])])
-            labels = np.append(labels,stats.mode(data["disease_classification"][start:end])[0][0])
-    return segments, labels
-=======
 	segments = np.empty((0,window_size,3))
 	labels = np.empty((0))
 	for (start, end) in windows(data["timestamp"], window_size):
@@ -90,31 +75,37 @@ def segment_signal(data,window_size = 90):
 			segments = np.vstack([segments,np.dstack([x,y,z])])
 			labels = np.append(labels,stats.mode(data["disease_classification"][start:end])[0][0])
 	return segments, labels
->>>>>>> cfedcde18df04bdc500ee3e86d688793c7cbefb3
+
 
 segments, labels = segment_signal(dataset)
+print(pd.get_dummies(labels))
 labels = np.asarray(pd.get_dummies(labels), dtype = np.int8)
 reshaped_segments = segments.reshape(len(segments), 1,90, 3)
 
 
 # randomly split into training and testing
 train_test_split = np.random.rand(len(reshaped_segments)) < 0.70
-train_x = reshaped_segments[train_test_split]
-train_y = labels[train_test_split]
-test_x = reshaped_segments[~train_test_split]
-test_y = labels[~train_test_split]
+train_x = reshaped_segments[1:]
+train_y = labels[1:]
+test_x = reshaped_segments[0]
+test_y = labels[0]
+
+# train_x = reshaped_segments[train_test_split]
+# train_y = labels[train_test_split]
+# test_x = reshaped_segments[~train_test_split]
+# test_y = labels[~train_test_split]
 
 
 #CNN Model
 input_height = 1
 input_width = 90
-num_labels = 6
+num_labels = 2
 num_channels = 3
 
 batch_size = 10
-kernel_size = 60
-depth = 60
-num_hidden = 1000
+kernel_size = 30 # 50
+depth = 30 #60
+num_hidden = 1000 #2000
 
 learning_rate = 0.0001
 training_epochs = 5
@@ -165,17 +156,19 @@ optimizer = tf.train.GradientDescentOptimizer(learning_rate = learning_rate).min
 correct_prediction = tf.equal(tf.argmax(y_,1), tf.argmax(Y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-with tf.Session() as session:
-	tf.initialize_all_variables().run()
-	for epoch in range(training_epochs):
-		cost_history = np.empty(shape=[1],dtype=float)
-		for b in range(total_batchs):    
-			offset = (b * batch_size) % (train_y.shape[0] - batch_size)
-			batch_x = train_x[offset:(offset + batch_size), :, :, :]
-			batch_y = train_y[offset:(offset + batch_size), :]
-			_, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
-			cost_history = np.append(cost_history,c)
-			print "Epoch: ",epoch," Training Loss: ",np.mean(cost_history)," Training Accuracy: ",
-			session.run(accuracy, feed_dict={X: train_x, Y: train_y})
-	
-	print "Testing Accuracy:", session.run(accuracy, feed_dict={X: test_x, Y: test_y})
+# with tf.Session() as session:
+# 	tf.global_variables_initializer().run()
+# 	for epoch in range(training_epochs):
+# 		print "epoch"
+# 		cost_history = np.empty(shape=[1],dtype=float)
+# 		for b in range(total_batchs):
+# 			print "what the fuck"
+# 			offset = (b * batch_size) % (train_y.shape[0] - batch_size)
+# 			batch_x = train_x[offset:(offset + batch_size), :, :, :]
+# 			batch_y = train_y[offset:(offset + batch_size), :]
+# 			print len(batch_y)
+# 			_, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
+# 			cost_history = np.append(cost_history,c)
+# 			print "Epoch: ",epoch," Training Loss: ",np.mean(cost_history)," Training Accuracy: ",session.run([y_,accuracy], feed_dict={X: train_x, Y: train_y})
+
+# 	print "Testing Accuracy:", session.run(correct_prediction, feed_dict={X: test_x, Y: test_y})
