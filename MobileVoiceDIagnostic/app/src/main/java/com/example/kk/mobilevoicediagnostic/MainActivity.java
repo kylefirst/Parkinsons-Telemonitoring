@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity
 
         buttonStartStop = (ImageButton) findViewById(R.id.button);
         buttonStartStop.setImageResource(R.drawable.record);
-        buttonStartStop.setTag("start");
+        buttonStartStop.setTag("Start");
 
         buttonPlayStopLastRecordAudio = (Button) findViewById(R.id.button2);
         buttonReset = (Button)findViewById(R.id.button3);
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
         buttonUpload.setEnabled(false);
 
         textView = (TextView)findViewById(R.id.countdown);
-        textView.setVisibility(View.GONE);
+        textView.setText("Start");
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -126,8 +126,6 @@ public class MainActivity extends AppCompatActivity
                         Toast.makeText(MainActivity.this, "Recording started",
                                 Toast.LENGTH_LONG).show();
 
-                        textView.setVisibility(View.VISIBLE);
-
                         new CountDownTimer(10000, 1000) {
 
                             public void onTick(long millisUntilFinished) {
@@ -135,7 +133,8 @@ public class MainActivity extends AppCompatActivity
                             }
 
                             public void onFinish() {
-                                textView.setVisibility(View.GONE);
+                                buttonStartStop.setTag("Start");
+                                textView.setText("Done");
 
                                 mediaRecorder.stop();
                                 buttonStartStop.setImageResource(R.drawable.record);
