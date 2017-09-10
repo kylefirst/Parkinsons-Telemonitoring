@@ -7,11 +7,7 @@ import tensorflow as tf
 #%matplotlib inline
 plt.style.use('ggplot')
 
-<<<<<<< HEAD
-fname = "RawAccelerometerData.txt"
-=======
 fname = "../RawAccelerometerData.txt"
->>>>>>> cfedcde18df04bdc500ee3e86d688793c7cbefb3
 
 def read_data(file_path):
 	column_names = ['user-id','disease_classification','timestamp', 'x-axis', 'y-axis', 'z-axis']
@@ -68,18 +64,6 @@ def windows(data, size):
 		start += (size / 2)
 
 def segment_signal(data,window_size = 90):
-<<<<<<< HEAD
-    segments = np.empty((0,window_size,3))
-    labels = np.empty((0))
-    for (start, end) in windows(data["timestamp"], window_size):
-        x = data["x-axis"][start:end]
-        y = data["y-axis"][start:end]
-        z = data["z-axis"][start:end]
-        if(len(dataset["timestamp"][start:end]) == window_size):
-            segments = np.vstack([segments,np.dstack([x,y,z])])
-            labels = np.append(labels,stats.mode(data["disease_classification"][start:end])[0][0])
-    return segments, labels
-=======
 	segments = np.empty((0,window_size,3))
 	labels = np.empty((0))
 	for (start, end) in windows(data["timestamp"], window_size):
@@ -90,7 +74,6 @@ def segment_signal(data,window_size = 90):
 			segments = np.vstack([segments,np.dstack([x,y,z])])
 			labels = np.append(labels,stats.mode(data["disease_classification"][start:end])[0][0])
 	return segments, labels
->>>>>>> cfedcde18df04bdc500ee3e86d688793c7cbefb3
 
 segments, labels = segment_signal(dataset)
 labels = np.asarray(pd.get_dummies(labels), dtype = np.int8)
