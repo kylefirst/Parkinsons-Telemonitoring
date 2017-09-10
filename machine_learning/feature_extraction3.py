@@ -149,7 +149,7 @@ correct_prediction = tf.equal(tf.argmax(y_,1), tf.argmax(Y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 with tf.Session() as session:
-	tf.initialize_all_variables().run()
+	tf.global_variables_initializer().run()
 	for epoch in range(training_epochs):
 		cost_history = np.empty(shape=[1],dtype=float)
 		for b in range(total_batchs):    
