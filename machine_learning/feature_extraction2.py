@@ -100,8 +100,8 @@ for i in range(0,num_folds):
     num_channels = 3
 
     batch_size = 10
-    kernel_size = 60
-    depth = 60
+    kernel_size = 30
+    depth = 30
     num_hidden = 1000
 
     learning_rate = 0.0001
