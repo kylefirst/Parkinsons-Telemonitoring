@@ -1,4 +1,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <item name="ic_menu_voice" type="drawable">@drawable/ic_keyboard_voice_black_24dp</item>
     <item name="ic_menu_settings" type="drawable">@drawable/ic_settings_black_24dp</item>
+    <item name="ic_menu_instructions" type="drawable">@drawable/ic_info_black_24dp</item>
 </resources>
