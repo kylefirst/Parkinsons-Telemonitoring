@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity
                 File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
                         "RawAccelerometerData.txt");
                 file.delete();
+
+                textView.setText("Start");
             }
         });
 
