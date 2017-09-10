@@ -22,6 +22,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,8 +43,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.SEND_SMS;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.SystemClock.currentThreadTimeMillis;
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
+import static com.example.kk.mobilevoicediagnostic.R.id.nav_instructions;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
@@ -57,6 +61,8 @@ public class MainActivity extends AppCompatActivity
     private StorageReference mStorageRef;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
+    private String phoneNumber;
+    private String medications;
     MediaPlayer mediaPlayer;
     TextView textView;
 
@@ -66,6 +72,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+        medications = intent.getStringExtra(EXTRA_MESSAGE);
+        phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
 
         buttonStartStop = (ImageButton) findViewById(R.id.button);
         buttonStartStop.setImageResource(R.drawable.record);
@@ -219,8 +229,6 @@ public class MainActivity extends AppCompatActivity
                 File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
                         "RawAccelerometerData.txt");
                 file.delete();
-
-                textView.setText("Start");
             }
         });
 
@@ -273,6 +281,9 @@ public class MainActivity extends AppCompatActivity
                                 // ...
                             }
                         });
+
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage("+1" + phoneNumber, null, "Test SMS!", null, null);
             }
         });
 
@@ -288,7 +299,7 @@ public class MainActivity extends AppCompatActivity
 
     private void requestPermission() {
         ActivityCompat.requestPermissions(MainActivity.this, new
-                String[]{WRITE_EXTERNAL_STORAGE, RECORD_AUDIO}, RequestPermissionCode);
+                String[]{WRITE_EXTERNAL_STORAGE, RECORD_AUDIO, SEND_SMS}, RequestPermissionCode);
     }
 
     @Override
@@ -301,8 +312,10 @@ public class MainActivity extends AppCompatActivity
                             PackageManager.PERMISSION_GRANTED;
                     boolean RecordPermission = grantResults[1] ==
                             PackageManager.PERMISSION_GRANTED;
+                    boolean SmsPermission = grantResults[2] ==
+                            PackageManager.PERMISSION_GRANTED;
 
-                    if (StoragePermission && RecordPermission) {
+                    if (StoragePermission && RecordPermission && SmsPermission) {
                         Toast.makeText(MainActivity.this, "Permission Granted",
                                 Toast.LENGTH_LONG).show();
                     } else {
@@ -319,8 +332,11 @@ public class MainActivity extends AppCompatActivity
                 WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(),
                 RECORD_AUDIO);
+        int result2 = ContextCompat.checkSelfPermission(getApplicationContext(),
+                SEND_SMS);
         return result == PackageManager.PERMISSION_GRANTED &&
-                result1 == PackageManager.PERMISSION_GRANTED;
+                result1 == PackageManager.PERMISSION_GRANTED &&
+                result2 == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
@@ -368,6 +384,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsNewActivity.class);
             startActivity(intent);
+        } else if(id == R.id.nav_instructions) {
+            Intent intent = new Intent(this, InstructionActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -408,12 +427,11 @@ public class MainActivity extends AppCompatActivity
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        medications = intent.getStringExtra(EXTRA_MESSAGE);
+        phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
     }
 }
