@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 import tensorflow as tf
+import pyrebase	
+import json
 
 #%matplotlib inline
 plt.style.use('ggplot')
@@ -72,7 +74,7 @@ def segment_signal(data,window_size = 90):
 		x = data["x-axis"][start:end]
 		y = data["y-axis"][start:end]
 		z = data["z-axis"][start:end]
-		if(len(dataset["timestamp"][start:end]) == window_size):
+		if(len(dataset["timestamp"][start:end]) == window_size and np.dstack([x,y,z]).shape[1]== window_size):
 			print "seg: ", segments.shape
 			print "stac: ", np.dstack([x,y,z]).shape
 			segments = np.vstack([segments,np.dstack([x,y,z])])
@@ -83,7 +85,7 @@ def segment_test_signal(data,window_size = 90):
 	test_segments = np.empty((0,window_size,3))
 	#labels = np.empty((0))
 	for (start, end) in windows(data["timestamp"], window_size):
-		x = data["x-axis"][start:end]
+		x =	 data["x-axis"][start:end]
 		y = data["y-axis"][start:end]
 		z = data["z-axis"][start:end]
 		print np.dstack([x,y,z]).shape[1]
@@ -209,7 +211,30 @@ ind=0
 for i in range(len(K[0])):
 	if K[0][i]==m:
 		ind=i
+fin=-1
+if ind==1:
+	fin = 2
+elif ind==2:
+	fin = 1
+else:
+	fin = 3
 print ind
+
 output = open("../prediction.txt",'w')
 output.write(str(ind)+"\n")
 output.close()
+with open("../../keys.json",'r') as creds:
+	credentials= json.load(creds)
+config = {
+	"project_number": credentials["project_number"],
+	"apiKey":credentials["apiKey"],
+	"databaseURL": credentials["databaseURL"],
+    "project_id": credentials["project_id"],
+    "storageBucket": credentials["storageBucket"],
+    "authDomain": credentials["authDomain"]
+  }
+
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
+data = {"key":str(ind)}	
+db.child("prediction").push(data)

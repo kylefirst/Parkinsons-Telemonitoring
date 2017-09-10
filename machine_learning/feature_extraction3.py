@@ -129,7 +129,7 @@ X = tf.placeholder(tf.float32, shape=[None,input_height,input_width,num_channels
 Y = tf.placeholder(tf.float32, shape=[None,num_labels])
 
 c = apply_depthwise_conv(X,kernel_size,num_channels,depth)
-p = apply_max_pool(c,3,2)
+p = apply_max_pool(c,20,2)
 c = apply_depthwise_conv(p,6,depth*num_channels,depth//10)
 
 shape = c.get_shape().as_list()
