@@ -37,6 +37,8 @@
         android:layout_width="wrap_content"
         android:layout_centerHorizontal="true"
         android:textColor="#ff5666"
+        android:textSize="100dp"
+        android:layout_marginTop="75dp"
         android:text="@string/count" />
 
         <ImageButton
