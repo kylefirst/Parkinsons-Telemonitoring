@@ -2,7 +2,7 @@ import os
 import csv
 
 data_dir="PWP_accel"
-output_name="output.txt"
+output_name="output_binary_full.txt"
 output_file = open(output_name,'w')
 output_writer = csv.writer(output_file,delimiter=',')
 for filename in os.listdir(data_dir):
@@ -14,6 +14,12 @@ for filename in os.listdir(data_dir):
 	trial_reader = csv.reader(trial_file,delimiter=',')
 	for trial_row in trial_reader:
 		write_row=trial_row
+
+		if int(file_class)>1:
+			write_row.insert(0,"+")
+		else:
+			write_row.insert(0,"-")
+		#write_row.insert(0,file_class)
 		write_row.insert(0,file_id)
-		write_row.insert(1,file_class)
+
 		output_writer.writerow(write_row)
