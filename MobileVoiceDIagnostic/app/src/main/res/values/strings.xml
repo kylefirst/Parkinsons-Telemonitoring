@@ -80,4 +80,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_settings_new">SettingsNewActivity</string>
+    <string name="title_activity_instruction">InstructionActivity</string>
 </resources>

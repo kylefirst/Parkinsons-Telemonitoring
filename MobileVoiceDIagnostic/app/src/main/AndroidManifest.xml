@@ -32,6 +32,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.kk.mobilevoicediagnostic.MainActivity" />
         </activity>
+        <activity
+            android:name=".InstructionActivity"
+            android:label="@string/title_activity_instruction"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.kk.mobilevoicediagnostic.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

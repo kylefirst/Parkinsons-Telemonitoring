@@ -44,6 +44,7 @@ import java.io.IOException;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.SystemClock.currentThreadTimeMillis;
+import static com.example.kk.mobilevoicediagnostic.R.id.nav_instructions;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
@@ -367,6 +368,9 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsNewActivity.class);
+            startActivity(intent);
+        } else if(id == R.id.nav_instructions) {
+            Intent intent = new Intent(this, InstructionActivity.class);
             startActivity(intent);
         }
 
