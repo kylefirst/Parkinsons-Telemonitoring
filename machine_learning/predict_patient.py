@@ -8,6 +8,7 @@ import tensorflow as tf
 plt.style.use('ggplot')
 
 fname = "../output.txt"
+test_name = "../new_patient.txt"
 
 def read_data(file_path):
 	column_names = ['user-id','disease_classification','timestamp', 'x-axis', 'y-axis', 'z-axis']
@@ -81,17 +82,11 @@ reshaped_segments = segments.reshape(len(segments), 1,90, 3)
 
 
 # randomly split into training and testing
-train_test_split = np.random.rand(len(reshaped_segments)) < 0.99
-train_x = reshaped_segments[1:]
-train_y = labels[1:]
-test_x = reshaped_segments[0]
-test_y = labels[0]
-
-
-# train_x = reshaped_segments[train_test_split]
-# train_y = labels[train_test_split]
-# test_x = reshaped_segments[~train_test_split]
-# test_y = labels[~train_test_split]
+train_test_split = np.random.rand(len(reshaped_segments)) < 0.70
+train_x = reshaped_segments[train_test_split]
+train_y = labels[train_test_split]
+test_x = reshaped_segments[~train_test_split]
+test_y = labels[~train_test_split]
 
 
 #CNN Model
@@ -101,9 +96,9 @@ num_labels = 4
 num_channels = 3
 
 batch_size = 10
-kernel_size = 30 # 50
-depth = 30 #60
-num_hidden = 1000 #2000
+kernel_size = 50
+depth = 60
+num_hidden = 2000
 
 learning_rate = 0.0001
 training_epochs = 5
@@ -159,14 +154,13 @@ with tf.Session() as session:
 	for epoch in range(training_epochs):
 		print "epoch"
 		cost_history = np.empty(shape=[1],dtype=float)
-		for b in range(total_batchs):
+		for b in range(total_batchs):    
 			print "what the fuck"
 			offset = (b * batch_size) % (train_y.shape[0] - batch_size)
 			batch_x = train_x[offset:(offset + batch_size), :, :, :]
 			batch_y = train_y[offset:(offset + batch_size), :]
-			print len(batch_y)
 			_, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
 			cost_history = np.append(cost_history,c)
-			print "Epoch: ",epoch," Training Loss: ",np.mean(cost_history)," Training Accuracy: ",session.run([Y,accuracy], feed_dict={X: train_x, Y: train_y})
-
-	print "Testing Accuracy:", session.run(correct_prediction, feed_dict={X: test_x, Y: test_y})
+			print "Epoch: ",epoch," Training Loss: ",np.mean(cost_history)," Training Accuracy: ",session.run(accuracy, feed_dict={X: train_x, Y: train_y})
+	
+	print "Testing Accuracy:", session.run(accuracy, feed_dict={X: test_x, Y: test_y})
