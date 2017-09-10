@@ -19,7 +19,6 @@ depth = 0
 # Call the openDir procedure starting with the base folder.
 call openDir 'basepath$'
 
-
 #########################################################################
 #########################################################################
 ## Procedure: openDir                                                  ##

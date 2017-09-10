@@ -1,6 +1,6 @@
 form Read all files of the given type from the given directory
    sentence Source_directory patient_data_wav
-   sentence File_name_or_initial_substring test
+   sentence File_name_or_initial_substring 
    sentence File_extension .wav
 endform
 Create Strings as file list... list
@@ -75,7 +75,7 @@ shimmer_apq5 = extractNumber (report$, "Shimmer (apq5): ") * 100
 shimmer_apq11 = extractNumber (report$, "Shimmer (apq11): ") * 100
 mean_nhr = extractNumber (report$, "Mean noise-to-harmonics ratio: ")
  
-fileappend "D:\praatoutput\info.txt" 
+fileappend "praat_out/asdfasdf.txt" 
  ...'minPitch:3''tab$''maxPitch:3''tab$''pitch_range:3''tab$''medianPitch:3''tab$''meanPitch:3''tab$''sdPitch:3''tab$'
  ...'jitter_loc:3''tab$''jitter_loc_abs:3''tab$''jitter_rap:3''tab$''jitter_ppq5:3''tab$'
  ...'shimmer_loc:3''tab$''shimmer_loc_dB:3''tab$''shimmer_apq3:3''tab$''shimmer_apq5:3''tab$''shimmer_apq11:3'
