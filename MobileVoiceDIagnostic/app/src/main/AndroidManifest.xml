@@ -24,14 +24,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.kk.mobilevoicediagnostic.MainActivity" />
-        </activity>
-        <activity
             android:name=".SettingsNewActivity"
             android:label="@string/title_activity_settings_new"
             android:parentActivityName=".MainActivity"
