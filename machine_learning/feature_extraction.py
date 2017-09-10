@@ -7,7 +7,7 @@ import tensorflow as tf
 %matplotlib inline
 plt.style.use('ggplot')
 
-fname = "accelerometer.txt"
+fname = "RawAccelerometerData.txt"
 
 def read_data(file_path):
     column_names = ['user-id','disease_classification','timestamp', 'x-axis', 'y-axis', 'z-axis']
@@ -72,7 +72,7 @@ def segment_signal(data,window_size = 90):
         z = data["z-axis"][start:end]
         if(len(dataset["timestamp"][start:end]) == window_size):
             segments = np.vstack([segments,np.dstack([x,y,z])])
-            labels = np.append(labels,stats.mode(data["activity"][start:end])[0][0])
+            labels = np.append(labels,stats.mode(data["disease_classification"][start:end])[0][0])
     return segments, labels
 
 segments, labels = segment_signal(dataset)
